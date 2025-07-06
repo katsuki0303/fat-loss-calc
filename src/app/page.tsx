@@ -1,103 +1,111 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [weight, setWeight] = useState("");
+  const [currentBfp, setCurrentBfp] = useState("");
+  const [targetBfp, setTargetBfp] = useState("");
+  const [result, setResult] = useState<string | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const weightNum = parseFloat(weight);
+    const currentBfpNum = parseFloat(currentBfp);
+    const targetBfpNum = parseFloat(targetBfp);
+
+    if (isNaN(weightNum) || isNaN(currentBfpNum) || isNaN(targetBfpNum)) {
+      setResult("正しい数字を入力してください。");
+      return;
+    }
+
+    if (
+      weightNum <= 0 ||
+      currentBfpNum <= 0 ||
+      targetBfpNum <= 0 ||
+      currentBfpNum >= 100 ||
+      targetBfpNum >= 100 ||
+      currentBfpNum <= targetBfpNum
+    ) {
+      setResult("入力値が正しいか確認してください。");
+      return;
+    }
+
+    // 脂肪量 = 体重 × 体脂肪率
+    const fatMass = weightNum * (currentBfpNum / 100);
+    // 除脂肪体重 = 体重 - 脂肪量
+    const leanMass = weightNum - fatMass;
+    // 目標体脂肪率での目標体重 = 除脂肪体重 / (1 - 目標体脂肪率)
+    const targetWeight = leanMass / (1 - targetBfpNum / 100);
+    // 脂肪だけを落とした場合の減量量
+    const fatLoss = weightNum - targetWeight;
+
+    setResult(
+      `脂肪のみを落とした場合の目標体重は約 ${targetWeight.toFixed(
+        2
+      )}kg（-${fatLoss.toFixed(2)}kg）です。`
+    );
+  };
+
+  return (
+    <main className="min-h-screen p-6 bg-gray-100 text-gray-800 flex items-center justify-center">
+      <div className="max-w-2xl w-full bg-white rounded-xl shadow-md p-6">
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          🎯 体脂肪率から目標体重を計算
+        </h1>
+        <p className="mb-6 text-center text-sm text-gray-600">
+          脂肪だけを減らした場合の理想体重をシミュレーションできます！
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block font-medium">現在の体重（kg）</label>
+            <input
+              type="number"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              step="0.1"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+          <div>
+            <label className="block font-medium">現在の体脂肪率（%）</label>
+            <input
+              type="number"
+              value={currentBfp}
+              onChange={(e) => setCurrentBfp(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              step="0.1"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">目標体脂肪率（%）</label>
+            <input
+              type="number"
+              value={targetBfp}
+              onChange={(e) => setTargetBfp(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              step="0.1"
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded w-full"
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            計算する
+          </button>
+        </form>
+
+        {result && (
+          <div className="mt-6 p-4 bg-green-100 border border-green-300 rounded text-center">
+            {result}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
