@@ -31,6 +31,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
       <head>
+        {/* ✅ title / description / keywords */}
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <meta name="keywords" content={metadata.keywords.join(', ')} />
+
+        {/* ✅ Google Search Console 所有権確認用（↓この content 値はご自身のに変更） */}
+        <meta name="google-site-verification" content="44tlgfxO8Fea-BwnUK5BSRIatba6d9H6-CarKK5ek8s" />
+
+        {/* ✅ OGP設定 */}
+        <meta property="og:title" content={metadata.openGraph.title} />
+        <meta property="og:description" content={metadata.openGraph.description} />
+        <meta property="og:url" content={metadata.openGraph.url} />
+        <meta property="og:site_name" content={metadata.openGraph.siteName} />
+        <meta property="og:locale" content={metadata.openGraph.locale} />
+        <meta property="og:type" content={metadata.openGraph.type} />
+
         {/* Google Analytics 4 スクリプト（G-XXXXXXX を自分のIDに変更） */}
         <Script
           async
